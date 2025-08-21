@@ -1,0 +1,53 @@
+void setup() {
+pinMode(5, OUTPUT); // OC3a  
+pinMode(6, OUTPUT); // OC4a
+pinMode(46, OUTPUT); // OC5a
+pinMode(45, OUTPUT); // OC5b
+pinMode(LED_BUILTIN,OUTPUT);
+
+cli(); //disable interrupts
+TCCR5B = 0x18; // 0001 1000, Disable Timer 
+TCCR4B = 0x18; // 0001 1000, Disable Timer 
+TCCR3B = 0x18; // 0001 1000, Disable Timer 
+
+TCCR5A = 0xAA; // 1010 1010
+TCCR4A = 0xA2; // 1010 0010
+TCCR3A = 0xA2; // 1010 0010
+
+//TOP value
+ICR5 = 160-1;
+ICR4 = 160-1;
+ICR3 = 160-1;
+
+// DUTY CYCLE
+OCR3A = (int) (ICR3 * 0.46);
+OCR4A = (int) (ICR4 * 0.41);
+OCR5A = (int) (ICR5 * 0.50);
+OCR5B = (int) (ICR5 * 0.02);
+
+
+// INIT TMR AT 0x00
+TCNT5=0x0;
+TCNT4=0x0;
+TCNT3=0x0;
+sei(); //enable interrupts
+
+TCCR3B |= 1; // Prescale=1, Enable Timer 
+no_op(5);
+TCCR4B |= 1; // Prescale=1, Enable Timer 
+no_op(11);
+TCCR5B |= 1; // Prescale=1, Enable Timer 
+
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+  digitalWrite(LED_BUILTIN, HIGH);
+  delayMicroseconds(5000);
+  digitalWrite(LED_BUILTIN, LOW);
+  delayMicroseconds(500);
+}
+void no_op(int delay)
+{
+  for (int i=0; i<=delay; i++) asm("nop");//No Operation
+}
